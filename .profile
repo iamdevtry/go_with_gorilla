@@ -10,4 +10,4 @@ fi
 
 export PATH=$PATH:/usr/local/go/bin
 
-export GOOGLE_APPLICATION_CREDENTIALS="/Users/devtry/Workspace/Golang/go_with_mux/golang-firebase-62a8c-firebase-adminsdk-kpvxz-0b68d0c284.json"
+export GOOGLE_APPLICATION_CREDENTIALS="/Users/devtry/Workspace/Golang/golang-firebase-62a8c-firebase-adminsdk-kpvxz-0b68d0c284.json"
