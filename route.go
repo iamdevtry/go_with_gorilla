@@ -2,39 +2,32 @@ package main
 
 import (
 	"encoding/json"
+	"math/rand"
 	"net/http"
+
+	"github.com/iamdevtry/go_with_mux/entity"
+	"github.com/iamdevtry/go_with_mux/repository"
 )
 
-type Post struct {
-	Id    int    `json:"id"`
-	Title string `json:"title"`
-	Text  string `json:"text"`
-}
-
-var posts []Post
-
-func init() {
-	posts = []Post{
-		{Id: 1, Title: "Hello World", Text: "This is a sample post"},
-		{Id: 2, Title: "Hello World 2", Text: "This is a sample post 2"},
-		{Id: 3, Title: "Hello World 3", Text: "This is a sample post 3"},
-	}
-}
+var (
+	repo repository.PostRepository = repository.NewPostRepository()
+)
 
 func getPosts(r http.ResponseWriter, req *http.Request) {
 	r.Header().Set("Content-Type", "application/json")
-	result, err := json.Marshal(posts)
+	posts, err := repo.FindAll()
 	if err != nil {
 		r.WriteHeader(http.StatusInternalServerError)
-		r.Write([]byte(`{"error": "Error marshalling the posts array"}`))
+		r.Write([]byte(`{"error": "Error getting the posts"}`))
 		return
 	}
+
 	r.WriteHeader(http.StatusOK)
-	r.Write(result)
+	json.NewEncoder(r).Encode(posts)
 }
 
 func addPost(r http.ResponseWriter, req *http.Request) {
-	var post Post
+	var post entity.Post
 	err := json.NewDecoder(req.Body).Decode(&post)
 	if err != nil {
 		r.WriteHeader(http.StatusInternalServerError)
@@ -42,18 +35,9 @@ func addPost(r http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	post.Id = len(posts) + 1
-	// post.Title = "Hello World " + string(rune(post.Id))
-	// post.Text = "This is a sample post " + string(rune(post.Id))
-	posts = append(posts, post)
+	post.Id = rand.Int()
+	repo.Save(&post)
 
 	r.WriteHeader(http.StatusOK)
-	result, err := json.Marshal(post)
-	if err != nil {
-		r.WriteHeader(http.StatusBadRequest)
-		r.Write([]byte(`{"error": "Error marshalling the post"}`))
-	}
-
-	r.Write(result)
-
+	json.NewEncoder(r).Encode(post)
 }
